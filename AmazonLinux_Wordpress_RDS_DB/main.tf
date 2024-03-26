@@ -100,7 +100,7 @@ resource "aws_instance" "web" {
 }
 
 
-#rds subnet
+#RDS subnet
 resource "aws_db_subnet_group" "rds_subnet_group" {
   name       = "rds-subnet-group"
   subnet_ids = [aws_subnet.private1.id, aws_subnet.private2.id]
