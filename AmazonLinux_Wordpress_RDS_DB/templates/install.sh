@@ -14,8 +14,8 @@ function check_prog() {
         echo "*** Updating Yum ***......[$(co)]"
         sudo yum upgrade -y
         echo "*** Upgrading Yum ***......[$(co)]"
-        # sudo yum install -y amazon-linux-extras
-        # echo "*** Installing amazon-linux-extras ***......[$(co)]"
+        sudo yum install -y amazon-linux-extras
+        echo "*** Installing amazon-linux-extras ***......[$(co)]"
         sudo yum -y install httpd php8.1.x86_64 php8.1-mysqlnd.x86_64 php8.1-cli.x86_64 php8.1-pdo.x86_64 php8.1-fpm.x86_64 wget 
         echo "*** Installing Dependencies ***......[$(co)]"
         sudo wget https://wordpress.org/latest.tar.gz
@@ -24,19 +24,12 @@ function check_prog() {
         echo "*** Extracting WordPress ***......[$(co)]"
         sudo mv wordpress/* /var/www/html/
         echo "*** Moving WordPress ***......[$(co)]"
-        sudo cp wp-config.php /var/www/html/wp-config.php
+        sudo cp /tmp/wp-config.php /var/www/html/wp-config.php
         echo "*** Copying wp-config.php ***......[$(co)]"
         sudo chown -R apache.apache /var/www/html
         echo "*** Changing ownership ***......[$(co)]"
         sudo systemctl start httpd
-        echo "*** Starting Apache ***......[$(co)]"
-        sudo systemctl start php8.1-fpm
-        echo "*** Starting PHP ***......[$(co)]"
-
+        echo "*** Starting Apache ***......[$(co)]"          
 }
-
-
-
-
 
 check_prog

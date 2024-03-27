@@ -87,6 +87,17 @@ resource "aws_instance" "wordpress_instance" {
   key_name = var.instance_key
   subnet_id              = aws_subnet.public_subnet.id
   security_groups = [aws_security_group.sg.id]
+  
+  provisioner "file"  {
+    source = "./templates/wp-config.php"
+    destination = "/tmp/wp-config.php"
+  }
+  connection {
+    type        = "ssh"
+    user        = "ec2-user"
+    private_key = file("~/pem/testing.pem")
+    host        = self.public_ip
+  }
 
   user_data = filebase64("./templates/install.sh")
 
