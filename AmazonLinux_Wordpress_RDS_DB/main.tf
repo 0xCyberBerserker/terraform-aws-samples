@@ -81,7 +81,7 @@ data "aws_ami" "aws_lnx2_ami" {
   }
 }
 ### Create an EC2 Instance ###
-resource "aws_instance" "web" {
+resource "aws_instance" "wordpress_instance" {
   ami = data.aws_ami.aws_lnx2_ami.id
   instance_type = var.instance_type
   key_name = var.instance_key
@@ -91,36 +91,27 @@ resource "aws_instance" "web" {
   user_data = filebase64("./templates/install.sh")
 
   tags = {
-    Name = "web_instance"
+    Name = "wordpress_instance"
   }
 
   volume_tags = {
-    Name = "web_instance"
+    Name = "wordpress_instance"
   } 
 }
 
 
-#RDS subnet
-resource "aws_db_subnet_group" "rds_subnet_group" {
-  name       = "rds-subnet-group"
-  subnet_ids = [aws_subnet.private1.id, aws_subnet.private2.id]
-}
-#RDS INSTANCE
-resource "aws_db_instance" "rds_instance" {
-  engine                    = "mysql"
-  engine_version            = "5.7"
-  skip_final_snapshot       = true
-  final_snapshot_identifier = "my-final-snapshot"
-  instance_class            = "db.t2.micro"
-  allocated_storage         = 20
-  identifier                = "my-rds-instance"
-  db_name                   = "wordpress_db"
-  username                  = "test" #change me if used on prod
-  password                  = "test" #change me if used on prod
-  db_subnet_group_name      = aws_db_subnet_group.rds_subnet_group.name
-  vpc_security_group_ids    = [aws_security_group.rds_security_group.id]
 
+#RDS INSTANCE
+resource "aws_db_instance" "wordpressbackend" {
+  instance_class = "db.t3.micro"
+  engine = "mysql"
+  publicly_accessible = false
+  allocated_storage = 20
+  name = "wordpress"
+  username = var.rds_username
+  password = var.rds_password
+  skip_final_snapshot = true
   tags = {
-    Name = "RDS Instance"
+    app = "mysql"
   }
 }
