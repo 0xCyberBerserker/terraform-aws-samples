@@ -3,7 +3,7 @@
  * The base configuration for WordPress
  *
  * The wp-config.php creation script uses this file during the installation.
- * You don't have to use the web site, you can copy this file to "wp-config.php"
+ * You don't have to use the website, you can copy this file to "wp-config.php"
  * and fill in the values.
  *
  * This file contains the following configurations:
@@ -20,16 +20,16 @@
 
 // ** Database settings - You can get this info from your web host ** //
 /** The name of the database for WordPress */
-define( 'DB_NAME', 'wordpress' );
+define( 'DB_NAME', 'database_name_here' );
 
 /** Database username */
-define( 'DB_USER', 'test' );
+define( 'DB_USER', 'username_here' );
 
 /** Database password */
-define( 'DB_PASSWORD', 'testestest' );
+define( 'DB_PASSWORD', 'password_here' );
 
 /** Database hostname */
-define( 'DB_HOST', 'terraform-20240326221922960100000001.cz0i8kwik7zn.us-west-2.rds.amazonaws.com:3306' );
+define( 'DB_HOST', 'localhost' );
 
 /** Database charset to use in creating database tables. */
 define( 'DB_CHARSET', 'utf8' );

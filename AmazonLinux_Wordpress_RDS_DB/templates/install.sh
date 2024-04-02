@@ -14,10 +14,18 @@ function check_prog() {
         echo "*** Updating Yum ***......[$(co)]"
         sudo yum upgrade -y
         echo "*** Upgrading Yum ***......[$(co)]"
-        sudo yum install -y amazon-linux-extras
+        sudo amazon-linux-extras install php8.2
         echo "*** Installing amazon-linux-extras ***......[$(co)]"
-        sudo yum -y install httpd php8.1.x86_64 php8.1-mysqlnd.x86_64 php8.1-cli.x86_64 php8.1-pdo.x86_64 php8.1-fpm.x86_64 wget 
+        sudo yum -y install httpd wget jq
         echo "*** Installing Dependencies ***......[$(co)]"
+        sudo usermod -a -G apache ec2-user
+        echo "*** Adding ec2-user to apache ***......[$(co)]"
+        sudo chown -R ec2-user:apache /var/www
+        echo "*** Changing ownership ***......[$(co)]"
+        sudo chmod 2775 /var/www && find /var/www -type d -exec sudo chmod 2775 {} \;
+        echo "*** Changing permissions 1 ***......[$(co)]"
+        find /var/www -type f -exec sudo chmod 0664 {} \;
+        echo "*** Changing permissions 2 ***......[$(co)]"
         sudo wget https://wordpress.org/latest.tar.gz
         echo "*** Downloading WordPress ***......[$(co)]"
         tar -xzvf latest.tar.gz
@@ -26,10 +34,28 @@ function check_prog() {
         echo "*** Moving WordPress ***......[$(co)]"
         sudo cp /tmp/wp-config.php /var/www/html/wp-config.php
         echo "*** Copying wp-config.php ***......[$(co)]"
-        sudo chown -R apache.apache /var/www/html
-        echo "*** Changing ownership ***......[$(co)]"
+        ## Setting DB Host
+        WORDPRESS_HOST=$(aws ssm get-parameter --name /carpeta/test --query 'Parameter.Value' --region us-west-2 | jq -r .)
+        sed -i "s/define( 'DB_HOST', 'localhost' );/define( 'DB_HOST', '${WORDPRESS_HOST}' );/g" /var/www/html/wp-config.php
+        ## Setting DB User
+        WORDPRESS_DB_USER=$(aws ssm get-parameter --name /carpeta/test --query 'Parameter.Value' --region us-west-2 | jq -r .)
+        sed -i "s/define( 'DB_USER', 'username_here' );/define( 'DB_USER', '${WORDPRESS_DB_USER}' );/g" /var/www/html/wp-config.php
+        ## Setting DB Host
+        WORDPRESS_DB_HOST=$(aws ssm get-parameter --name /carpeta/test --query 'Parameter.Value' --region us-west-2 | jq -r .)
+        sed -i "s/define( 'DB_HOST', 'localhost' );/define( 'DB_HOST', '${WORDPRESS_DB_HOST}' );/g" /var/www/html/wp-config.php
+        ## Setting DB Name
+        WORDPRESS_DB_NAME=$(aws ssm get-parameter --name /carpeta/test --query 'Parameter.Value' --region us-west-2 | jq -r .)
+        sed -i "s/define( 'DB_NAME', 'database_name_here' );/define( 'DB_NAME', '${WORDPRESS_DB_NAME}' );/g" /var/www/html/wp-config.php
+        ## Setting DB Passwd
+        WORDPRESS_DB_PASSWD=$(aws ssm get-parameter --name /carpeta/test --query 'Parameter.Value' --region us-west-2 | jq -r .)
+        sed -i "s/define( 'DB_PASSWORD', 'PASSWORD' );/define( 'DB_PASSWORD', '${WORDPRESS_DB_PASSWD}' );/g" /var/www/html/wp-config.php
+        echo "*** Setting wp-config.php with regular expressions***......[$(co)]"
         sudo systemctl start httpd
         echo "*** Starting Apache ***......[$(co)]"          
-}
+        sudo systemctl enable httpd
+        echo "*** Enabling Apache ***......[$(co)]"
 
+}
 check_prog
+
+

@@ -18,3 +18,11 @@ output "DBConnectionString" {
 value = aws_db_instance.wordpressbackend.endpoint
 description = "The Database connection String!"
 }
+output "DBPassword" {
+value = aws_db_instance.wordpressbackend.password
+description = "The Database Password!"
+}
+output "DBEndpoint" {
+value = aws_db_instance.wordpressbackend.endpoint
+description = "The Database Endpoint!"
+}

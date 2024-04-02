@@ -119,10 +119,28 @@ resource "aws_db_instance" "wordpressbackend" {
   publicly_accessible = false
   allocated_storage = 20
   name = "wordpress"
-  username = var.rds_username
-  password = var.rds_password
+  username = aws_ssm_parameter.db_username.value
+  password = aws_ssm_parameter.db_password.value
   skip_final_snapshot = true
   tags = {
     app = "mysql"
   }
+}
+
+resource "aws_ssm_parameter" "db_endpoint" {
+  name  = "db_endpoint"
+  type  = "String"
+  value = aws_db_instance.wordpressbackend.endpoint
+}
+
+resource "aws_ssm_parameter" "db_username" {
+  name  = "db_username"
+  type  = "String"
+  value = "TESTUSER"
+}
+
+resource "aws_ssm_parameter" "db_password" {
+  name  = "db_password"
+  type  = "TESTTESTTEST"
+  value = aws_db_instance.wordpressbackend.password
 }
