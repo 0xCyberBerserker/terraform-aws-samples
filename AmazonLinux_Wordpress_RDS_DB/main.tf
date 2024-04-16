@@ -2,7 +2,6 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      # version = "~> 3.0"
     }
   }
 }
@@ -117,13 +116,16 @@ data "aws_ami" "aws_lnx2_ami" {
 #RDS INSTANCE
 resource "aws_db_instance" "wordpressbackend" {
   instance_class = "db.t3.micro"
+  storage_type         = "gp2"
   engine = "mysql"
-  publicly_accessible = false
+  publicly_accessible = true
   allocated_storage = 20
   db_name = "wordpress"
   username = aws_ssm_parameter.db_username.value
   password = aws_ssm_parameter.db_password.value
   skip_final_snapshot = true
+  apply_immediately    = true
+  depends_on = [ aws_vpc.app_vpc, aws_subnet.public_subnet, aws_internet_gateway.igw ]
   tags = {
     app = "mysql"
   }
@@ -147,7 +149,7 @@ resource "aws_ssm_parameter" "db_password" {
   value = "TESTTESTTEST"
 }
 
-### Module for EC2 Instance with roles ###
+### Module for EC2 Instance with setted IAM roles ###
 
 module "wordpress" {
   source  = "terraform-aws-modules/ec2-instance/aws"
@@ -168,7 +170,7 @@ module "wordpress" {
     AdministratorAccess = "arn:aws:iam::aws:policy/AdministratorAccess"
   }
   vpc_security_group_ids      = [aws_security_group.sg.id]
-
+  depends_on = [ aws_db_instance.wordpressbackend ]
   root_block_device = [
     {
       volume_size           = 50

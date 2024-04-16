@@ -28,7 +28,7 @@ function check_prog() {
         echo "*** Changing permissions 2 ***......[$(co)]"
         sudo wget https://wordpress.org/latest.tar.gz
         echo "*** Downloading WordPress ***......[$(co)]"
-        tar -xzvf latest.tar.gz
+        tar -xzf latest.tar.gz
         echo "*** Extracting WordPress ***......[$(co)]"
         sudo mv wordpress/* /var/www/html/
         echo "*** Moving WordPress ***......[$(co)]"
@@ -37,15 +37,15 @@ function check_prog() {
         ## Setting DB User
         WORDPRESS_DB_USER=$(aws ssm get-parameter --name /parameters/db_username --query 'Parameter.Value' --region us-west-2 | jq -r .)
         sed -i "s/define( 'DB_USER', 'username_here' );/define( 'DB_USER', '${WORDPRESS_DB_USER}' );/g" /var/www/html/wp-config.php
-        ## Setting DB Host
-        WORDPRESS_DB_HOST=$(aws ssm get-parameter --name /parameters/db_endpoint --query 'Parameter.Value' --region us-west-2 | jq -r .)
-        sed -i "s/define( 'DB_HOST', '' );/define( 'DB_HOST', '${WORDPRESS_DB_HOST}' );/g" /var/www/html/wp-config.php
         ## Setting DB Name
         # WORDPRESS_DB_NAME=$(aws ssm get-parameter --name wordpress --query 'Parameter.Value' --region us-west-2 | jq -r .)
         sed -i "s/define( 'DB_NAME', 'database_name_here' );/define( 'DB_NAME', 'wordpress' );/g" /var/www/html/wp-config.php
         ## Setting DB Passwd
         WORDPRESS_DB_PASSWD=$(aws ssm get-parameter --name /parameters/db_password --query 'Parameter.Value' --region us-west-2 | jq -r .)
         sed -i "s/define( 'DB_PASSWORD', 'password_here' );/define( 'DB_PASSWORD', '${WORDPRESS_DB_PASSWD}' );/g" /var/www/html/wp-config.php
+        ## Setting DB Host
+        WORDPRESS_DB_HOST=$(aws ssm get-parameter --name /parameters/db_endpoint --query 'Parameter.Value' --region us-west-2 | jq -r .)
+        sed -i "s/define( 'DB_HOST', 'localhost' );/define( 'DB_HOST', '${WORDPRESS_DB_HOST}' );/g" /var/www/html/wp-config.php
         echo "*** Setting wp-config.php with regular expressions***......[$(co)]"
         sudo systemctl start httpd
         echo "*** Starting Apache ***......[$(co)]"          
